@@ -46,17 +46,11 @@ COPY --from=compile-typescript-stage \
 RUN mkdir dist && touch dist/.placeholder
 
 RUN \
-  --mount=type=secret,id=foundry_username,required=false \
-  --mount=type=secret,id=foundry_password,required=false \
   npm install && \
-  if [ -f /run/secrets/foundry_username ] && [ -f /run/secrets/foundry_password ]; then \
-  ./authenticate.js "$(cat /run/secrets/foundry_username)" "$(cat /run/secrets/foundry_password)" cookiejar.json && \
-  presigned_url=$(./get_release_url.js --retry 5 cookiejar.json "${FOUNDRY_VERSION}") && \
-  DOWNLOAD_URL="${presigned_url}"; \
-  elif [ -n "${FOUNDRY_RELEASE_URL}" ]; then \
+  if [ -n "${FOUNDRY_RELEASE_URL}" ]; then \
   DOWNLOAD_URL="${FOUNDRY_RELEASE_URL}"; \
   else \
-  echo "No valid credentials or pre-signed URL provided. Skipping pre-installation."; \
+  echo "No credentials or pre-signed URL provided. Skipping pre-installation."; \
   fi && \
   if [ -n "${DOWNLOAD_URL}" ]; then \
   apt-get update && apt-get install -y unzip wget && \
@@ -107,7 +101,6 @@ RUN mkdir -p resources /home/node/data \
   && npm uninstall -g npm \
   && rm -rf /usr/local/lib/node_modules/npm
 
-VOLUME ["/home/node/data"]
 # HTTP Server
 EXPOSE 30000/tcp
 # TURN Server
