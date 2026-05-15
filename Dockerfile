@@ -115,7 +115,7 @@ EXPOSE 30000/tcp
 # See: https://github.com/moby/moby/issues/11185
 # EXPOSE 33478/udp
 # EXPOSE 49152-65535/udp
-
+RUN chown -R node:node /data && chmod -R 755 /data
 USER node
 ENTRYPOINT ["./entrypoint.sh"]
 CMD ["resources/app/main.mjs", "--port=30000", "--headless", "--noupdate",\
