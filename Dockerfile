@@ -91,9 +91,9 @@ COPY \
   src/launcher.sh \
   src/logging.sh \
   ./
-RUN mkdir -p resources /data \
+RUN mkdir -p resources /home/node/data \
   && chmod a+rx /home/node \
-  && chmod a+rwx resources /data \
+  && chmod a+rwx resources /home/node/data \
   && apt-get update && apt-get install -y \
   curl \
   file \
@@ -107,7 +107,7 @@ RUN mkdir -p resources /data \
   && npm uninstall -g npm \
   && rm -rf /usr/local/lib/node_modules/npm
 
-VOLUME ["/data"]
+VOLUME ["/home/node/data"]
 # HTTP Server
 EXPOSE 30000/tcp
 # TURN Server
@@ -115,9 +115,8 @@ EXPOSE 30000/tcp
 # See: https://github.com/moby/moby/issues/11185
 # EXPOSE 33478/udp
 # EXPOSE 49152-65535/udp
-RUN chown -R node:node /data && chmod -R 755 /data
 USER node
 ENTRYPOINT ["./entrypoint.sh"]
 CMD ["resources/app/main.mjs", "--port=30000", "--headless", "--noupdate",\
-  "--dataPath=/data"]
+  "--dataPath=/home/node/data"]
 HEALTHCHECK --start-period=3m --interval=30s --timeout=5s CMD ./check_health.sh
