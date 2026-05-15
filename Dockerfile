@@ -87,6 +87,7 @@ COPY \
   package-lock.json \
   src/backoff.sh \
   src/check_health.sh \
+  src/docker-entrypoint.sh \
   src/entrypoint.sh \
   src/launcher.sh \
   src/logging.sh \
@@ -97,6 +98,7 @@ RUN mkdir -p resources /data \
   && apt-get update && apt-get install -y \
   curl \
   file \
+  gosu \
   jq \
   patch \
   sed \
@@ -115,9 +117,7 @@ EXPOSE 30000/tcp
 # See: https://github.com/moby/moby/issues/11185
 # EXPOSE 33478/udp
 # EXPOSE 49152-65535/udp
-RUN chown -R node:node /data && chmod -R 755 /data
-USER node
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["resources/app/main.mjs", "--port=30000", "--headless", "--noupdate",\
   "--dataPath=/data"]
 HEALTHCHECK --start-period=3m --interval=30s --timeout=5s CMD ./check_health.sh
